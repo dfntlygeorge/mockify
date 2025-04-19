@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { CircleCheckIcon, CircleX, Loader2 } from "lucide-react";
+import { CircleCheckIcon, CircleX, DownloadIcon, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ACCEPTED_FILE_TYPES } from "@/config/constants";
@@ -40,12 +40,9 @@ export const FileUploadForm = () => {
     const valid = await form.trigger();
     if (!valid) return;
 
-    // Get the files from the form state
     const files = form.getValues("files") as File[];
 
-    // Clear the existing FormData and append files properly
     if (files) {
-      console.log(files.length);
       for (let i = 0; i < files.length; i++) {
         formData.append("files", files[i]);
       }
@@ -55,17 +52,16 @@ export const FileUploadForm = () => {
     });
   };
 
-  useEffect(() => {
-    if (state?.mockExam) {
-      const mockExam = state.mockExam;
-      const cleanJson = mockExam
-        .replace(/```json\n?/, "")
-        .replace(/```$/, "")
-        .trim();
-      const exam = JSON.parse(cleanJson);
-      console.log("📝 Mock Exam JSON:", exam);
-    }
-  }, [state?.mockExam]);
+  // useEffect(() => {
+  //   if (state?.mockExam) {
+  //     const mockExam = state.mockExam;
+  //     const cleanJson = mockExam
+  //       .replace(/```json\n?/, "")
+  //       .replace(/```$/, "")
+  //       .trim();
+  //     const exam = JSON.parse(cleanJson);
+  //   }
+  // }, [state?.mockExam]);
 
   return (
     <div>
@@ -121,81 +117,20 @@ export const FileUploadForm = () => {
               <span>Error! {state.message}</span>
             </div>
           )}
+          {state.success && state.pdf && (
+            <div className="mt-4">
+              <a
+                href={`data:application/pdf;base64,${state.pdf}`}
+                download="mock_exam.pdf"
+                className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                <DownloadIcon className="h-5 w-5" />
+                Download Mock Exam PDF
+              </a>
+            </div>
+          )}
         </form>
       </Form>
-      {state.mockExam &&
-        (() => {
-          try {
-            const clean = state.mockExam
-              .replace(/```json\n?/, "")
-              .replace(/```$/, "")
-              .trim();
-            const mockExam = JSON.parse(clean);
-
-            return (
-              <div className="mt-6 space-y-6 rounded-md border p-4">
-                <h2 className="text-lg font-semibold">Generated Mock Exam</h2>
-
-                {/* True/False */}
-                {mockExam.true_false?.length > 0 && (
-                  <div>
-                    <h3 className="font-medium">True or False</h3>
-                    <ul className="list-disc pl-6">
-                      {mockExam.true_false.map((q: any, i: number) => (
-                        <li key={i}>
-                          {q.question} —{" "}
-                          <strong>{q.answer ? "True" : "False"}</strong>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Multiple Choice */}
-                {mockExam.multiple_choice?.length > 0 && (
-                  <div>
-                    <h3 className="font-medium">Multiple Choice</h3>
-                    <ul className="space-y-4">
-                      {mockExam.multiple_choice.map((q: any, i: number) => (
-                        <li key={i}>
-                          <p>{q.question}</p>
-                          <ul className="list-decimal pl-6">
-                            {q.options.map((opt: string, j: number) => (
-                              <li key={j}>{opt}</li>
-                            ))}
-                          </ul>
-                          <p className="mt-1">
-                            Answer: <strong>{q.answer}</strong>
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Fill in the Blank */}
-                {mockExam.fill_in_the_blank?.length > 0 && (
-                  <div>
-                    <h3 className="font-medium">Fill in the Blank</h3>
-                    <ul className="list-disc pl-6">
-                      {mockExam.fill_in_the_blank.map((q: any, i: number) => (
-                        <li key={i}>
-                          {q.question.replace("______", "____")} —{" "}
-                          <strong>{q.answer}</strong>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          } catch (err) {
-            console.error("Failed to parse mock exam:", err);
-            return (
-              <p className="text-red-500">Failed to parse generated exam.</p>
-            );
-          }
-        })()}
     </div>
   );
 };
