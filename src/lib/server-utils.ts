@@ -1,4 +1,19 @@
+import pdflatex from "node-pdflatex";
 import { getTextExtractor } from "office-text-extractor";
+
+export async function compileLatexToPdf(latexCode: string) {
+  try {
+    const pdf = await pdflatex(latexCode);
+    return pdf;
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log("LaTeX compilation error:\n", err.message);
+    } else {
+      console.log("Unknown LaTeX compilation error:\n", err);
+    }
+    throw new Error("LaTeX compilation failed.");
+  }
+}
 
 const extractor = getTextExtractor();
 

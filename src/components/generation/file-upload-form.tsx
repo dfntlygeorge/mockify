@@ -1,6 +1,6 @@
 "use client";
 
-import { generateMockExamAction } from "@/app/_actions/generate-mock-exam";
+import { generateMockExamAction } from "@/app/_actions/mock-exam";
 import { FilesSchema } from "@/app/_schemas/files.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useEffect } from "react";
@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { CircleCheckIcon, CircleX, DownloadIcon, Loader2 } from "lucide-react";
+import { CircleCheckIcon, CircleX, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ACCEPTED_FILE_TYPES } from "@/config/constants";
@@ -52,16 +52,9 @@ export const FileUploadForm = () => {
     });
   };
 
-  // useEffect(() => {
-  //   if (state?.mockExam) {
-  //     const mockExam = state.mockExam;
-  //     const cleanJson = mockExam
-  //       .replace(/```json\n?/, "")
-  //       .replace(/```$/, "")
-  //       .trim();
-  //     const exam = JSON.parse(cleanJson);
-  //   }
-  // }, [state?.mockExam]);
+  useEffect(() => {
+    // Trigger a re-render or perform any side-effect here
+  }, [state.success, state.context]);
 
   return (
     <div>
@@ -117,10 +110,67 @@ export const FileUploadForm = () => {
               <span>Error! {state.message}</span>
             </div>
           )}
-          {state.success && state.pdf && (
+          {state.success && state.context && (
+            <div className="space-y-6 mt-6">
+              {/* 1. Math-related flag */}
+
+              {/* 2. Organized chunks */}
+              <div>
+                <h2 className="text-xl font-semibold mb-3">
+                  📦 Organized Chunks
+                </h2>
+                <div className="space-y-4">
+                  {state.context.organizedChunks.map((chunk, index) => (
+                    <div
+                      key={index}
+                      className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm whitespace-pre-wrap text-sm"
+                    >
+                      <div className="text-gray-600 mb-2 font-medium">
+                        Chunk {index + 1}
+                      </div>
+                      {chunk}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Final combined organized content */}
+              <div>
+                <h2 className="text-xl font-semibold mb-3">
+                  🧩 Combined Organized Content
+                </h2>
+                <div className="p-4 bg-white border border-gray-300 rounded-lg shadow-sm whitespace-pre-wrap text-sm">
+                  {state.context.organizedContent}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* {state.success && state.chunkedText && (
+            <div>
+              <h2>Chunked Text: {state.chunkedText.length}</h2>
+              <ul>
+                {state.chunkedText.map((chunk, index) => (
+                  <li key={index}>
+                    <h1>Chunk: {index}</h1>
+                    <p>{chunk}</p>
+                    <hr />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )} */}
+          {/* {state.success && state.summarizedText && (
+            <div>
+              <h1>Summarized Text From DEEPSEEK: </h1>
+              <pre>{state.summarizedText}</pre>
+            </div>
+          )} */}
+
+          {/* {state.success && state.mockExam && (
             <div className="mt-4">
               <a
-                href={`data:application/pdf;base64,${state.pdf}`}
+                href={`data:application/pdf;base64,${state.mockExam}`}
                 download="mock_exam.pdf"
                 className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
               >
@@ -128,7 +178,7 @@ export const FileUploadForm = () => {
                 Download Mock Exam PDF
               </a>
             </div>
-          )}
+          )} */}
         </form>
       </Form>
     </div>

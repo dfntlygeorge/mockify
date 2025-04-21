@@ -2,10 +2,9 @@
 
 import { PrevState } from "@/config/types";
 import { ACCEPTED_FILE_TYPES, MAX_FILE_SIZE } from "@/config/constants";
-import { extractText } from "@/lib/extract-text";
-import { compileLatexToPdf } from "@/lib/latexToPdf";
-import { generateMockExamPrompt } from "@/lib/generate-prompt";
-import { callDeepSeek } from "@/lib/call-deepseek";
+
+import { extractText } from "@/lib/server-utils";
+import { chunkPlainText, organizeChunks } from "@/lib/utils";
 
 export const generateMockExamAction = async (
   _: PrevState,
@@ -27,29 +26,14 @@ export const generateMockExamAction = async (
       };
     }
 
-    const context = await extractText(files);
-    const prompt = generateMockExamPrompt(context);
-    const latexCode = await callDeepSeek(prompt);
-
-    if (!latexCode)
-      return {
-        success: false,
-        message: "Deepseek is dumb",
-      };
-
-    const pdf = await compileLatexToPdf(latexCode);
-
-    if (!pdf) {
-      return {
-        success: false,
-        message: "not compiled",
-      };
-    }
+    // const text = await extractText(files);
+    // const chunkedText = await chunkPlainText(text);
+    // const context = await organizeChunks(chunkedText);
 
     return {
       success: true,
-      message: "Files processed successfully!",
-      pdf: Buffer.from(pdf).toString("base64"),
+      message: "Generated mock exam successfully!",
+      context,
     };
   } catch (error) {
     if (error instanceof Error) {
